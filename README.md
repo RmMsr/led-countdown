@@ -14,3 +14,4 @@ The LEDs consist of RGB LED stripes with a chainable led controller.
   * 5 V wall plug
   * A box (paper)
 
+[![Build Status](https://travis-ci.org/RmMsr/led-countdown.svg?branch=master)](https://travis-ci.org/RmMsr/led-countdown)
