@@ -1,8 +1,10 @@
 #include <Adafruit_NeoPixel.h>
+#include <Sodaq_DS3231.h>
+#include "TimeTable.h"
 
 const long serialRate = 115200;
 const int inputPin = 2;
-const int pixelPin = 5;
+const int pixelPin = 6;
 const int loopDelay = 100;
 const unsigned long millisPerNumber = (unsigned long) 1000 * 60; // How long is one led shown?
 
@@ -14,11 +16,15 @@ unsigned long buttonMillis = 0;
 unsigned long endMillis = 0;
 
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(60, pixelPin, NEO_GRB + NEO_KHZ800);
-const uint32_t color1 = strip.Color(30, 0, 10);
+const uint32_t color1 = strip.Color(40, 0, 30);
 
 void setup() {
+  // Console
   Serial.begin(serialRate);
-  Serial.println("Let\'s go");
+  Serial.println("Let's go");
+
+  //Clock
+  rtc.begin();
 
   // Button
   pinMode(inputPin, INPUT);
@@ -39,12 +45,14 @@ void loop() {
   bool buttonPressed = digitalRead(inputPin) == LOW;
   if (buttonPressed) {
     proccessState(buttonPressed);
-  } else {
+  } else if (isRunning) {
     proccessTime();
+  } else {
+    checkTimeTable(rtc.now());
   }
   lastState = buttonPressed;
   delay(loopDelay);
-  
+
   if (lastNumber != number) {
     Serial.println(String("Set Number to ") + number);
   }
@@ -59,7 +67,7 @@ void proccessState(bool pressed)
   }
   
   if ( isRunning == false ) {
-    Serial.write("Started countdown\n");
+    Serial.println("Manually started countdown");
     isRunning = true;
   }
 }
@@ -80,11 +88,8 @@ void applyMeasure()
   } else if ( newNumber < 0 ) {
     newNumber = 0;
   }
-  
-  endMillis = millis() + 
-    newNumber * millisPerNumber + 
-    millisPerNumber - 1;
-  setNumber(newNumber);
+
+  startCountdownMinutes(newNumber);
 }
 
 void setNumber(int num)
@@ -123,5 +128,21 @@ void proccessTime()
     isRunning = false;
     Serial.write("Stopped countdown\n");
   }
+}
+
+void checkTimeTable(DateTime dateTime)
+{
+  TimeTable table(dateTime);
+  if ( table.match() ) {
+    startCountdownMinutes(60);
+    Serial.println("TimeTable started Countdown");
+  }
+}
+
+void startCountdownMinutes(unsigned char minutes)
+{
+  endMillis = millis() + (minutes + 1) * millisPerNumber - 1;
+  isRunning = true;
+  setNumber(minutes);
 }
 
