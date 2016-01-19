@@ -6,9 +6,9 @@ before_install:
   - tar xJf arduino-1.6.7-linux64.tar.xz
   - mv arduino-1.6.7 $HOME/arduino_ide
 install:
-  - $HOME/arduino_ide/arduino --install-library "Adafruit NeoPixel"
+  - $HOME/arduino_ide/arduino --install-library "Adafruit NeoPixel,Sodaq_DS3231"
 script:
-        - $HOME/arduino_ide/arduino --verify --board arduino:avr:uno led-countdown/led-countdown.ino
+  - $HOME/arduino_ide/arduino --verify --board arduino:avr:uno led-countdown/led-countdown.ino
 notifications:
   email:
     on_success: change
