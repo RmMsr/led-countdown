@@ -16,12 +16,12 @@ unsigned long buttonMillis = 0;
 unsigned long endMillis = 0;
 
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(60, pixelPin, NEO_GRB + NEO_KHZ800);
-const uint32_t color1 = strip.Color(40, 0, 30);
+const uint32_t color1 = strip.Color(30, 0, 30);
 
 void setup() {
   // Console
   Serial.begin(serialRate);
-  Serial.println("Let's go");
+  log("Let's go");
 
   //Clock
   rtc.begin();
@@ -54,7 +54,7 @@ void loop() {
   delay(loopDelay);
 
   if (lastNumber != number) {
-    Serial.println(String("Set Number to ") + number);
+    log(String("Set Number to ") + number);
   }
 }
 
@@ -67,8 +67,8 @@ void proccessState(bool pressed)
   }
   
   if ( isRunning == false ) {
-    Serial.println("Manually started countdown");
     isRunning = true;
+    log("Manually started countdown");
   }
 }
 
@@ -126,7 +126,7 @@ void proccessTime()
   } else {
     setNumber(0);
     isRunning = false;
-    Serial.write("Stopped countdown\n");
+    log("Stopped countdown\n");
   }
 }
 
@@ -135,7 +135,7 @@ void checkTimeTable(DateTime dateTime)
   TimeTable table(dateTime);
   if ( table.match() ) {
     startCountdownMinutes(60);
-    Serial.println("TimeTable started Countdown");
+    log("TimeTable started Countdown");
   }
 }
 
@@ -144,5 +144,12 @@ void startCountdownMinutes(unsigned char minutes)
   endMillis = millis() + (minutes + 1) * millisPerNumber - 1;
   isRunning = true;
   setNumber(minutes);
+}
+
+void log(const String& message)
+{
+  String output;
+  rtc.now().addToString(output);
+  Serial.println(output + " " + message);
 }
 
