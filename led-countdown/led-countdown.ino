@@ -2,9 +2,9 @@
 #include <Sodaq_DS3231.h>
 #include "TimeTable.h"
 
-const long serialRate = 115200;
-const int inputPin = 2;
-const int pixelPin = 6;
+const long serialRate = 9600;
+const int inputPin = 8;
+const int pixelPin = 3;
 const int loopDelay = 100;
 const unsigned long millisPerNumber = (unsigned long) 1000 * 60; // How long is one led shown?
 
@@ -21,7 +21,6 @@ const uint32_t color1 = strip.Color(30, 0, 30);
 void setup() {
   // Console
   Serial.begin(serialRate);
-  log("Let's go");
 
   //Clock
   rtc.begin();
@@ -37,6 +36,8 @@ void setup() {
   lastState = false;
   lastMillis = millis();
   endMillis = millis();
+
+  log("Let's go");
 }
 
 void loop() {
@@ -148,8 +149,7 @@ void startCountdownMinutes(unsigned char minutes)
 
 void log(const String& message)
 {
-  String output;
-  rtc.now().addToString(output);
+  String output = TimeTable::printDateTime(TimeTable::applyTimeZone(rtc.now()));
   Serial.println(output + " " + message);
 }
 

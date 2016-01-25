@@ -4,14 +4,15 @@
 class TimeTable
 {
   public:
-  enum WEEK_DAYS { SUN=1, MON=2, TUE=3, WED=4, THU=5, FRI=6, SAT=7 };
+  enum WEEK_DAYS { SUN=0, MON=1, TUE=2, WED=3, THU=4, FRI=5, SAT=6 };
 
   TimeTable(const DateTime& dateTime);
   bool match() const;
   const DateTime& getLocal() { return this->dateTime; }
+  static DateTime applyTimeZone(const DateTime& dateTimeUtc);
+  static String printDateTime(const DateTime& dateTime);
 
   private:
-  static DateTime applyTimeZone(const DateTime& dateTimeUtc);
   DateTime dateTime;
 };
 
