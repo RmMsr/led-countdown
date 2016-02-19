@@ -1,6 +1,7 @@
 #include <Adafruit_NeoPixel.h>
 #include <Sodaq_DS3231.h>
 #include "TimeTable.h"
+#include "ClockSetter.h"
 
 const long serialRate = 9600;
 const int inputPin = 8;
@@ -17,6 +18,8 @@ unsigned long endMillis = 0;
 
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(60, pixelPin, NEO_GRB + NEO_KHZ800);
 const uint32_t color1 = strip.Color(30, 0, 30);
+
+SerialInterface* console = NULL;
 
 void setup() {
   // Console
@@ -38,25 +41,33 @@ void setup() {
   endMillis = millis();
 
   log("Let's go");
+  console = new ClockSetter();
+  console->begin();
 }
 
 void loop() {
   int lastNumber = number;
   
   bool buttonPressed = digitalRead(inputPin) == LOW;
+
   if (buttonPressed) {
     proccessState(buttonPressed);
   } else if (isRunning) {
     proccessTime();
   } else {
-    checkTimeTable(rtc.now());
+    checkTimeTable();
   }
   lastState = buttonPressed;
-  delay(loopDelay);
 
+  // Logging
   if (lastNumber != number) {
     log(String("Set Number to ") + number);
   }
+
+  // Console
+  console->proccess();
+
+  delay(loopDelay);
 }
 
 void proccessState(bool pressed)
@@ -93,6 +104,22 @@ void applyMeasure()
   startCountdownMinutes(newNumber);
 }
 
+void proccessTime()
+{
+  if ( isRunning == false ) {
+    return;
+  }
+  
+  if ( endMillis > millis() ) {
+    int remainingNumber = (int) ((endMillis - millis()) / millisPerNumber);
+    setNumber(remainingNumber);
+  } else {
+    setNumber(0);
+    isRunning = false;
+    log("Stopped countdown\n");
+  }
+}
+
 void setNumber(int num)
 {
   if ( num < 0 || num > strip.numPixels() ) {
@@ -114,26 +141,9 @@ void showNumber(uint16_t num, uint32_t color)
   strip.show();
 }
 
-void proccessTime()
+void checkTimeTable()
 {
-  unsigned long remainingMillis = endMillis - millis();
-  if ( isRunning == false ) {
-    return;
-  }
-  
-  if ( remainingMillis > 0 ) {
-    int remainingNumber = (int) (remainingMillis / millisPerNumber);
-    setNumber(remainingNumber);
-  } else {
-    setNumber(0);
-    isRunning = false;
-    log("Stopped countdown\n");
-  }
-}
-
-void checkTimeTable(DateTime dateTime)
-{
-  TimeTable table(dateTime);
+  TimeTable table(rtc.now());
   if ( table.match() ) {
     startCountdownMinutes(60);
     log("TimeTable started Countdown");
