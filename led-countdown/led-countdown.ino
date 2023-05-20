@@ -31,13 +31,12 @@ void setup() {
   // Button
   pinMode(inputPin, INPUT);
   digitalWrite(inputPin, HIGH);
-  
+
   strip.begin();
   setNumber(number);
-  
+
   isRunning = false;
   lastState = false;
-  lastMillis = millis();
   endMillis = millis();
 
   log("Let's go");
@@ -47,7 +46,7 @@ void setup() {
 
 void loop() {
   int lastNumber = number;
-  
+
   bool buttonPressed = digitalRead(inputPin) == LOW;
 
   if (buttonPressed) {

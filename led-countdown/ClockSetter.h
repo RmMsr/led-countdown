@@ -21,4 +21,3 @@ class ClockSetter : public SerialInterface
 };
 
 #endif
-

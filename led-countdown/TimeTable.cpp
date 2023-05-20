@@ -9,14 +9,11 @@ bool TimeTable::match() const
 {
   switch ( this->dateTime.dayOfWeek() ) {
     case MON:
-      return this->dateTime.hour() == 8 && this->dateTime.minute() == 0;
     case TUE:
-      return this->dateTime.hour() == 8 && this->dateTime.minute() == 30;
     case WED:
     case THU:
-      return this->dateTime.hour() == 7 && this->dateTime.minute() == 00;    
     case FRI:
-      return this->dateTime.hour() == 16 && this->dateTime.minute() == 40;
+      return this->dateTime.hour() == 7 && this->dateTime.minute() == 15;
   }
 }
 
